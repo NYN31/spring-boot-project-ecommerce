@@ -101,15 +101,8 @@ public class JWTTokenServiceImpl implements JWTTokenService {
                     .setSigningKey(DatatypeConverter.parseBase64Binary(SECRETE_KEY))
                     .parseClaimsJws(token).getBody();
 
-            String tokenId = (String) claims.getId();
+            String tokenId = claims.getId();
             String walletId = (String) claims.get("walletId");
-
-//            String issuer = (String) claims.getIssuer();
-//            Date issued = (Date) claims.getIssuedAt();
-//            Date expiration = (Date) claims.getExpiration();
-//            String subject = (String) claims.getSubject();
-//            String emailAddress = (String) claims.get("emailAddress");
-
 
             Optional<TokenEntity> tokenDetails =
                     Optional.ofNullable(tokenRepository.findByTokenIdAndWalletId(tokenId, walletId));
