@@ -13,9 +13,11 @@ import com.ecommerce.ecommercebe.pojo.response.LogoutResponse;
 import com.ecommerce.ecommercebe.service.JWTTokenService;
 import com.ecommerce.ecommercebe.service.LogInOutService;
 import com.ecommerce.ecommercebe.utility.enums.TokenStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class LogInOutServiceImpl implements LogInOutService {
     @Autowired
@@ -60,11 +62,12 @@ public class LogInOutServiceImpl implements LogInOutService {
 
     private void validateUserByEmailAndPassword(String email, String password){
         UserEntity userEntity = userRepository.findByEmail(email);
+        log.info("{}, {}", userEntity.getPassword(), password);
         if(userEntity == null){
             throw new NotFoundException("Incorrect email address");
         }
 
-        if(userEntity != null && userEntity.getPassword() != password){
+        if(!userEntity.getPassword().equals(password)){
             throw new NotFoundException("Incorrect password");
         }
     }
