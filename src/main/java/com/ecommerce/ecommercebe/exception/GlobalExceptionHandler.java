@@ -15,4 +15,13 @@ public class GlobalExceptionHandler {
         response.setMessage(ex.getMessage());
         return response;
     }
+
+    @ExceptionHandler(value = RuntimeException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public CommonResponse handleRuntimeException(Exception ex){
+        CommonResponse response = new CommonResponse();
+        response.setCode(HttpStatus.NOT_FOUND.value());
+        response.setMessage(ex.getMessage());
+        return response;
+    }
 }
