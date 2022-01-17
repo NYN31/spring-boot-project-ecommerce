@@ -8,5 +8,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface JWTTokenService {
     JwtTokenResponse getJwtToken(JwtTokenRequest request);
-    CommonResponse verifyToken(String token);
+    JwtTokenResponse verifyToken(String token);
 }

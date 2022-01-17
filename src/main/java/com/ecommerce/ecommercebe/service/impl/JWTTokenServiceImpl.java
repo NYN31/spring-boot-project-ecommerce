@@ -5,15 +5,14 @@ import com.ecommerce.ecommercebe.db.repository.TokenRepository;
 import com.ecommerce.ecommercebe.db.repository.UserRepository;
 import com.ecommerce.ecommercebe.exception.ExpireTokenException;
 import com.ecommerce.ecommercebe.exception.InvalidTokenException;
+import com.ecommerce.ecommercebe.exception.MalformedTokenException;
+import com.ecommerce.ecommercebe.exception.NotFoundException;
 import com.ecommerce.ecommercebe.pojo.request.JwtTokenRequest;
 import com.ecommerce.ecommercebe.pojo.response.CommonResponse;
 import com.ecommerce.ecommercebe.pojo.response.JwtTokenResponse;
 import com.ecommerce.ecommercebe.service.JWTTokenService;
 import com.ecommerce.ecommercebe.utility.enums.TokenStatus;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,12 +46,12 @@ public class JWTTokenServiceImpl implements JWTTokenService {
     public JwtTokenResponse getJwtToken(JwtTokenRequest request) {
         log.info("Enter into getJwtToken function.");
         String walletId = userRepository.findByEmail(request.getEmail()).getWalletId();
-        String token = getToken(request.getEmail(), walletId);
+        String tokenId = getToken(request.getEmail(), walletId);
 
         JwtTokenResponse response = new JwtTokenResponse();
         response.setCode(200);
         response.setMessage("Token created successfully");
-        response.setToken(token);
+        response.setTokenId(tokenId);
         return response;
     }
 
@@ -94,7 +93,7 @@ public class JWTTokenServiceImpl implements JWTTokenService {
         return token;
     }
 
-    public CommonResponse verifyToken(String token){
+    public JwtTokenResponse verifyToken(String token){
         log.info("Enter into verifyToken function.");
         try{
             Claims claims = Jwts.parser()
@@ -106,14 +105,20 @@ public class JWTTokenServiceImpl implements JWTTokenService {
 
             Optional<TokenEntity> tokenDetails =
                     Optional.ofNullable(tokenRepository.findByTokenIdAndWalletId(tokenId, walletId));
-            if(!tokenDetails.isPresent() || tokenDetails.get().getStatus() == TokenStatus.INACTIVE) {
-                throw new InvalidTokenException("Invalid token");
+            if(!tokenDetails.isPresent()) {
+                throw new NotFoundException("Invalid token/token not found");
+            }
+            if(tokenDetails.get().getStatus() == TokenStatus.INACTIVE){
+                throw new InvalidTokenException("Invalid token/token is inactive");
             }
 
-            CommonResponse response = new CommonResponse();
+            JwtTokenResponse response = new JwtTokenResponse();
             response.setCode(200);
             response.setMessage("Token verified successfully");
+            response.setTokenId(tokenId);
             return response;
+        } catch (MalformedJwtException e){
+            throw new MalformedTokenException("Token Not formatted correctly");
         } catch(ExpiredJwtException e) {
             throw new ExpireTokenException("Expired token");
         } catch(Exception e) {

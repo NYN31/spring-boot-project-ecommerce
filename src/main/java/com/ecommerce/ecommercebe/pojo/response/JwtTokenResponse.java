@@ -9,5 +9,5 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class JwtTokenResponse extends CommonResponse{
-    private String token;
+    private String tokenId;
 }

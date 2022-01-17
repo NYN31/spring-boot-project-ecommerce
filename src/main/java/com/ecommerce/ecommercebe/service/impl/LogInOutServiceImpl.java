@@ -42,16 +42,18 @@ public class LogInOutServiceImpl implements LogInOutService {
         LoginResponse logInResponse = new LoginResponse();
         logInResponse.setCode(200);
         logInResponse.setMessage("Log in successful");
-        logInResponse.setToken(jwtTokenResponse.getToken());
+        logInResponse.setToken(tokenRepository
+                .findByTokenId(jwtTokenResponse.getTokenId())
+                .getToken());
 
         return logInResponse;
     }
 
     public LogoutResponse logoutUser(String token){
         log.info("Enter into logout User function");
-        jwtTokenService.verifyToken(token);
+        String tokenId = jwtTokenService.verifyToken(token).getTokenId();
 
-        TokenEntity tokenEntity = tokenRepository.findByToken(token);
+        TokenEntity tokenEntity = tokenRepository.findByToken(tokenId);
         tokenEntity.setStatus(TokenStatus.INACTIVE);
         tokenRepository.save(tokenEntity);
 
