@@ -47,7 +47,7 @@ public class TokenEntity {
     @CreationTimestamp
     private Date createdAt;
 
-    @Column(name = "updated_at", nullable = false, updatable = false)
+    @Column(name = "updated_at", nullable = false)
     @UpdateTimestamp
     private Date expiredAt;
 

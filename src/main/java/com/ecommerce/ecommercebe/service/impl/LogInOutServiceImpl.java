@@ -13,9 +13,14 @@ import com.ecommerce.ecommercebe.pojo.response.LogoutResponse;
 import com.ecommerce.ecommercebe.service.JWTTokenService;
 import com.ecommerce.ecommercebe.service.LogInOutService;
 import com.ecommerce.ecommercebe.utility.enums.TokenStatus;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import javax.xml.bind.DatatypeConverter;
 
 @Slf4j
 @Service
@@ -29,6 +34,9 @@ public class LogInOutServiceImpl implements LogInOutService {
     @Autowired
     private JWTTokenService jwtTokenService;
 
+    @Value("${token.signature.secret.key.base64}")
+    public String SECRETE_KEY;
+
     public LoginResponse loginUser(LoginRequest request){
         log.info("Enter into login user function");
         validateUserByEmailAndPassword(request.getEmail(), request.getPassword());
@@ -39,22 +47,27 @@ public class LogInOutServiceImpl implements LogInOutService {
                 .build();
         JwtTokenResponse jwtTokenResponse
                 = jwtTokenService.getJwtToken(jwtTokenRequest);
+
         LoginResponse logInResponse = new LoginResponse();
         logInResponse.setCode(200);
         logInResponse.setMessage("Log in successful");
-        logInResponse.setToken(tokenRepository
-                .findByTokenId(jwtTokenResponse.getTokenId())
-                .getToken());
+        logInResponse.setToken(jwtTokenResponse.getToken());
 
         return logInResponse;
     }
 
     public LogoutResponse logoutUser(String token){
         log.info("Enter into logout User function");
-        String tokenId = jwtTokenService.verifyToken(token).getTokenId();
+        jwtTokenService.verifyToken(token);
 
-        TokenEntity tokenEntity = tokenRepository.findByToken(tokenId);
+        Claims claims = Jwts.parser()
+                .setSigningKey(DatatypeConverter.parseBase64Binary(SECRETE_KEY))
+                .parseClaimsJws(token).getBody();
+
+        log.info("Token Id: {}", claims.getId());
+        TokenEntity tokenEntity = tokenRepository.findByTokenId(claims.getId());
         tokenEntity.setStatus(TokenStatus.INACTIVE);
+        tokenEntity.setExpiredAt(claims.getExpiration());
         tokenRepository.save(tokenEntity);
 
         LogoutResponse logoutResponse = new LogoutResponse();

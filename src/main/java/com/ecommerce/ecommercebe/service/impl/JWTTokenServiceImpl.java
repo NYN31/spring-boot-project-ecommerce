@@ -46,12 +46,12 @@ public class JWTTokenServiceImpl implements JWTTokenService {
     public JwtTokenResponse getJwtToken(JwtTokenRequest request) {
         log.info("Enter into getJwtToken function.");
         String walletId = userRepository.findByEmail(request.getEmail()).getWalletId();
-        String tokenId = getToken(request.getEmail(), walletId);
+        String token = getToken(request.getEmail(), walletId);
 
         JwtTokenResponse response = new JwtTokenResponse();
         response.setCode(200);
         response.setMessage("Token created successfully");
-        response.setTokenId(tokenId);
+        response.setToken(token);
         return response;
     }
 
@@ -105,17 +105,13 @@ public class JWTTokenServiceImpl implements JWTTokenService {
 
             Optional<TokenEntity> tokenDetails =
                     Optional.ofNullable(tokenRepository.findByTokenIdAndWalletId(tokenId, walletId));
-            if(!tokenDetails.isPresent()) {
-                throw new NotFoundException("Invalid token/token not found");
-            }
-            if(tokenDetails.get().getStatus() == TokenStatus.INACTIVE){
-                throw new InvalidTokenException("Invalid token/token is inactive");
+            if(!tokenDetails.isPresent() || tokenDetails.get().getStatus().equals(TokenStatus.INACTIVE)) {
+                throw new InvalidTokenException("Invalid token");
             }
 
             JwtTokenResponse response = new JwtTokenResponse();
             response.setCode(200);
             response.setMessage("Token verified successfully");
-            response.setTokenId(tokenId);
             return response;
         } catch (MalformedJwtException e){
             throw new MalformedTokenException("Token Not formatted correctly");
