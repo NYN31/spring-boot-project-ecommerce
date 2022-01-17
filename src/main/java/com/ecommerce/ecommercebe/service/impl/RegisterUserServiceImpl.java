@@ -1,5 +1,6 @@
 package com.ecommerce.ecommercebe.service.impl;
 
+import com.ecommerce.ecommercebe.configuration.PasswordConfig;
 import com.ecommerce.ecommercebe.db.entity.UserEntity;
 import com.ecommerce.ecommercebe.db.repository.UserRepository;
 import com.ecommerce.ecommercebe.exception.EmailAddressExistsException;
@@ -16,6 +17,9 @@ import org.springframework.stereotype.Service;
 public class RegisterUserServiceImpl implements RegisterUserService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordConfig passwordConfig;
 
     public RegisterResponse registerUser(RegisterRequest request, String userType){
         validatingUser(request);
@@ -34,7 +38,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
         UserEntity user = UserEntity.builder()
                 .name(request.getName())
                 .email(request.getEmail())
-                .password(request.getPassword())
+                .password(passwordConfig.encodePassword().encode(request.getPassword()))
                 .walletId(request.getWalletId())
                 .userType(userType)
                 .address(request.getAddress())

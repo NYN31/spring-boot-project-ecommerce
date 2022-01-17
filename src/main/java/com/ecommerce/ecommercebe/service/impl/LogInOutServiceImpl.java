@@ -1,5 +1,6 @@
 package com.ecommerce.ecommercebe.service.impl;
 
+import com.ecommerce.ecommercebe.configuration.PasswordConfig;
 import com.ecommerce.ecommercebe.db.entity.TokenEntity;
 import com.ecommerce.ecommercebe.db.entity.UserEntity;
 import com.ecommerce.ecommercebe.db.repository.TokenRepository;
@@ -34,12 +35,16 @@ public class LogInOutServiceImpl implements LogInOutService {
     @Autowired
     private JWTTokenService jwtTokenService;
 
+    @Autowired
+    private PasswordConfig passwordConfig;
+
     @Value("${token.signature.secret.key.base64}")
     public String SECRETE_KEY;
 
     public LoginResponse loginUser(LoginRequest request){
         log.info("Enter into login user function");
-        validateUserByEmailAndPassword(request.getEmail(), request.getPassword());
+        String password = passwordConfig.encodePassword().encode(request.getPassword());
+        validateUserByEmailAndPassword(request.getEmail(), password);
 
         JwtTokenRequest jwtTokenRequest
                 = JwtTokenRequest.builder()
