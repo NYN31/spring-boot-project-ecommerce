@@ -12,6 +12,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public CommonResponse handleGenericException(Exception ex){
         CommonResponse response = new CommonResponse();
+        response.setCode(HttpStatus.BAD_REQUEST.value());
         response.setMessage(ex.getMessage());
         return response;
     }
