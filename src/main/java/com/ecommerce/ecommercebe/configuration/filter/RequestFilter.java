@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
@@ -40,10 +41,15 @@ public class RequestFilter implements Filter {
             jwtTokenService.verifyToken(token);
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (Exception e){
-            String obj = "{ \"Code\": 400, \"Message\": \"Invalid token\"}";
+            CommonResponse commonResponse = new CommonResponse();
+            commonResponse.setCode(200);
+            commonResponse.setMessage(e.getMessage());
             Gson gson = new Gson();
-            response.setStatus(204);
-            response.setContentType(gson.toJson(obj));
+            String obj1 = gson.toJson(commonResponse);
+            log.info("Json object for response: {}", obj1);
+            response.setStatus(400);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.getWriter().write(obj1);
             return;
         }
     }
