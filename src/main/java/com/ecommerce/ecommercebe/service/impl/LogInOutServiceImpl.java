@@ -43,8 +43,7 @@ public class LogInOutServiceImpl implements LogInOutService {
 
     public LoginResponse loginUser(LoginRequest request){
         log.info("Enter into login user function");
-        String password = passwordConfig.encodePassword().encode(request.getPassword());
-        validateUserByEmailAndPassword(request.getEmail(), password);
+        validateUserByEmailAndPassword(request.getEmail(), request.getPassword());
 
         JwtTokenRequest jwtTokenRequest
                 = JwtTokenRequest.builder()
@@ -83,6 +82,7 @@ public class LogInOutServiceImpl implements LogInOutService {
 
     private void validateUserByEmailAndPassword(String email, String password){
         UserEntity userEntity = userRepository.findByEmail(email);
+        log.info("{} {}", password, userEntity.getPassword());
         if(userEntity == null){
             throw new NotFoundException("Incorrect email address");
         }
