@@ -11,11 +11,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @Slf4j
-@RestController(value = "/register")
+@RestController
+@RequestMapping(value = "/register")
 public class RegistrationController {
+
+    private final String USER_TYPE1 = "buyer";
+    private final String USER_TYPE2 = "seller";
+
     @Autowired
     private RegisterUserService registerUserService;
 
@@ -27,9 +35,9 @@ public class RegistrationController {
             consumes= MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public RegisterResponse RegisterBuyer(@RequestBody RegisterRequest request){
+    public RegisterResponse RegisterBuyer(@Valid @RequestBody RegisterRequest request){
         log.info("Buyer registration {}", request);
-        return registerUserService.registerUser(request, "buyer");
+        return registerUserService.registerUser(request, USER_TYPE1);
     }
 
     @PostMapping(
@@ -37,9 +45,9 @@ public class RegistrationController {
             consumes= MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public RegisterResponse RegisterSeller(@RequestBody RegisterRequest request){
+    public RegisterResponse RegisterSeller(@Valid @RequestBody RegisterRequest request){
         log.info("Seller registration {}", request);
-        return registerUserService.registerUser(request, "seller");
+        return registerUserService.registerUser(request, USER_TYPE2);
     }
 
     @PostMapping(
@@ -47,8 +55,8 @@ public class RegistrationController {
             consumes= MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public JwtTokenResponse test(@RequestBody JwtTokenRequest request){
+    public JwtTokenResponse test(@Valid @RequestBody JwtTokenRequest request){
         log.info("JwtTokenRequest: {}", request);
-        return jwtTokenService.getJwtToken(request);
+        return JwtTokenResponse.builder().token("xyzTestToken").build();
     }
 }

@@ -4,11 +4,13 @@ import com.ecommerce.ecommercebe.db.entity.ProductEntity;
 import com.ecommerce.ecommercebe.db.entity.UserEntity;
 import com.ecommerce.ecommercebe.db.repository.ProductRepository;
 import com.ecommerce.ecommercebe.db.repository.UserRepository;
+import com.ecommerce.ecommercebe.exception.CommonException;
 import com.ecommerce.ecommercebe.exception.NotFoundException;
-import com.ecommerce.ecommercebe.exception.PermissionException;
 import com.ecommerce.ecommercebe.pojo.request.ProductRequest;
+import com.ecommerce.ecommercebe.pojo.response.CommonResponse;
 import com.ecommerce.ecommercebe.pojo.response.ProductResponse;
 import com.ecommerce.ecommercebe.service.ProductFeatureService;
+import com.ecommerce.ecommercebe.utility.utilClasses.PermissionDeniedForUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
@@ -28,34 +30,41 @@ public class ProductFeatureServiceImpl implements ProductFeatureService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private PermissionDeniedForUser permissionDeniedForUser;
+
     @Value("${token.signature.secret.key.base64}")
     public String SECRETE_KEY;
 
     @Value("${user.type.one}")
     public String buyer;
 
-    public ProductResponse addProduct(ProductRequest request, String token){
+    @Value("${user.type.one}")
+    public String seller;
+
+    public CommonResponse addProduct(ProductRequest request, String token){
         UserEntity user = parseToken(token);
 
-        if(user.getUserType().equals(buyer)){
-            throw new PermissionException("You don't have the permission to add a product");
-        } else{
-            log.info("H1");
-            ProductEntity product = ProductEntity.builder()
-                    .name(request.getName())
-                    .sellerId(user.getId())
-                    .price(request.getPrice())
-                    .quantity(request.getQuantity())
-                    .rating(request.getRating())
-                    .build();
-            log.info("H2");
-            productRepository.save(product);
-            log.info("H3");
-            ProductResponse response = new ProductResponse();
-            response.setCode(200);
-            response.setMessage("Product added successfully");
-            return response;
-       }
+        permissionDeniedForUser.HasPermissionForBuyer(user.getUserType());
+        log.info("Add product: {}", productRepository.findByName(request.getName()));
+        if(productRepository.findByName(request.getName()).isPresent()){
+            throw new CommonException("The product with same name has already exist");
+        }
+
+        ProductEntity product = ProductEntity.builder()
+                .name(request.getName())
+                .sellerId(user.getId())
+                .price(request.getPrice())
+                .tag(request.getTag())
+                .quantity(request.getQuantity())
+                .rating(request.getRating())
+                .build();
+        productRepository.save(product);
+
+        CommonResponse response = new CommonResponse();
+        response.setCode(200);
+        response.setMessage("Product added successfully");
+        return response;
     }
 
     private UserEntity parseToken(String token){
