@@ -8,9 +8,8 @@ import com.ecommerce.ecommercebe.exception.CommonException;
 import com.ecommerce.ecommercebe.exception.NotFoundException;
 import com.ecommerce.ecommercebe.pojo.request.ProductRequest;
 import com.ecommerce.ecommercebe.pojo.response.CommonResponse;
-import com.ecommerce.ecommercebe.pojo.response.ProductResponse;
 import com.ecommerce.ecommercebe.service.ProductFeatureService;
-import com.ecommerce.ecommercebe.utility.utilClasses.PermissionDeniedForUser;
+import com.ecommerce.ecommercebe.utility.utilClasses.PermissionDenied;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,7 @@ public class ProductFeatureServiceImpl implements ProductFeatureService {
     private ProductRepository productRepository;
 
     @Autowired
-    private PermissionDeniedForUser permissionDeniedForUser;
+    private PermissionDenied permissionDenied;
 
     @Value("${token.signature.secret.key.base64}")
     public String SECRETE_KEY;
@@ -45,7 +44,7 @@ public class ProductFeatureServiceImpl implements ProductFeatureService {
     public CommonResponse addProduct(ProductRequest request, String token){
         UserEntity user = parseToken(token);
 
-        permissionDeniedForUser.HasPermissionForBuyer(user.getUserType());
+        permissionDenied.ForBuyer(user.getUserType());
         log.info("Add product: {}", productRepository.findByName(request.getName()));
         if(productRepository.findByName(request.getName()).isPresent()){
             throw new CommonException("The product with same name has already exist");
