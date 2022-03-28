@@ -14,12 +14,12 @@ import com.ecommerce.ecommercebe.pojo.response.ProductListResponse;
 import com.ecommerce.ecommercebe.pojo.response.ProductResponse;
 import com.ecommerce.ecommercebe.service.CommonUserFeaturesService;
 import com.ecommerce.ecommercebe.service.LogInOutService;
+import com.ecommerce.ecommercebe.utility.utilClasses.ParseToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import javax.xml.bind.DatatypeConverter;
@@ -38,12 +38,18 @@ public class CommonUserFeaturesServiceImpl implements CommonUserFeaturesService 
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ParseToken parseToken;
+
     @Value("${token.signature.secret.key.base64}")
     private String SECRETE_KEY;
 
     public CommonResponse editUserProfile(UserProfileEditRequest request, String token){
+        UserEntity user = parseToken.getUser(token);
+
         log.info("Enter into edit user profile service");
-        if(userRepository.findByWalletId(request.getWalletId()) != null){
+        if(user.getWalletId().equals(request.getWalletId())
+        && userRepository.findByWalletId(request.getWalletId()) != null){
             throw new WalledIdExistsException("User already exist with this wallet ID");
         }
         if(userRepository.findByEmail(request.getEmail()) != null) {
@@ -57,8 +63,8 @@ public class CommonUserFeaturesServiceImpl implements CommonUserFeaturesService 
         request.setEmail((String) claims.get("emailAddress"));
         log.info("{}, {}", claims.get("emailAddress"), request);
         updateProfileIntoDatabase(request);
-        var x = logInOutService.logoutUser(token);
-        log.info("Logout Response: {}", x);
+        var logoutResponse = logInOutService.logoutUser(token);
+        log.info("Logout Response: {}", logoutResponse);
         CommonResponse response = new CommonResponse();
         response.setCode(200);
         response.setMessage("Edited successfully & logged out");

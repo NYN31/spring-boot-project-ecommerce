@@ -8,4 +8,6 @@ import org.springframework.stereotype.Service;
 @Service
 public interface ProductFeatureService {
     CommonResponse addProduct(ProductRequest request, String token);
+    CommonResponse updateProduct(ProductRequest request, String token);
+    CommonResponse deleteProduct(Long id, String token);
 }

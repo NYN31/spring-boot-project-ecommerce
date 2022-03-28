@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
 import java.util.Date;
 
 @Builder
@@ -24,6 +25,9 @@ public class ProductEntity {
     @Column(name = "id")
     @JsonIgnore
     private Long id ;
+
+    @Column(name = "product_id")
+    private String productId;
 
     @Column(name = "seller_id")
     private Long sellerId;
@@ -55,12 +59,12 @@ public class ProductEntity {
     @CreationTimestamp
     @JsonIgnore
     @ToString.Exclude
-    private Date createdAt;
+    private Instant createdAt;
 
     @Column(name = "updated_at", nullable = false)
     @UpdateTimestamp
     @JsonIgnore
     @ToString.Exclude
-    private Date updateAt;
+    private Instant updateAt;
 }
 

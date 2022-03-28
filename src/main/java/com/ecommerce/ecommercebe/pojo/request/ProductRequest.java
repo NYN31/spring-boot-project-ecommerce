@@ -12,6 +12,9 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @ToString
 public class ProductRequest {
+
+    private String productId;
+
     @Size(min=4, max=64)
     private String name;
 

@@ -26,4 +26,20 @@ public class ProductFeatureController {
         log.info("Add product {}", request);
         return productFeatureService.addProduct(request, token);
     }
+
+    @PostMapping(value = "/update")
+    public CommonResponse updateProduct(
+            @Valid @RequestBody ProductRequest request,
+            @RequestHeader(value = "token") String token){
+        log.info("update product {}", request);
+        return productFeatureService.updateProduct(request, token);
+    }
+
+    @PostMapping(value = "/delete/{id}")
+    public CommonResponse deleteProduct(
+            @PathVariable Long id,
+            @RequestHeader(value = "token") String token){
+        log.info("Delete product with productId: {}", id);
+        return productFeatureService.deleteProduct(id, token);
+    }
 }
