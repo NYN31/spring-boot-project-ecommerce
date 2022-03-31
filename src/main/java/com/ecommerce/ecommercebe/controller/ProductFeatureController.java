@@ -4,6 +4,7 @@ import com.ecommerce.ecommercebe.db.repository.ProductRepository;
 import com.ecommerce.ecommercebe.pojo.request.ProductRequest;
 import com.ecommerce.ecommercebe.pojo.response.CommonResponse;
 import com.ecommerce.ecommercebe.pojo.response.ProductResponse;
+import com.ecommerce.ecommercebe.pojo.response.ResultResponse;
 import com.ecommerce.ecommercebe.service.ProductFeatureService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,5 +42,12 @@ public class ProductFeatureController {
             @RequestHeader(value = "token") String token){
         log.info("Delete product with productId: {}", id);
         return productFeatureService.deleteProduct(id, token);
+    }
+
+    @GetMapping(value = "/seller-products")
+    public ResultResponse sellerOwnProduct(
+            @RequestHeader(value = "token") String token) {
+        log.info("Seller own product for sale");
+        return productFeatureService.sellerOwnProduct(token);
     }
 }

@@ -8,6 +8,7 @@ import com.ecommerce.ecommercebe.exception.CommonException;
 import com.ecommerce.ecommercebe.exception.NotFoundException;
 import com.ecommerce.ecommercebe.pojo.request.ProductRequest;
 import com.ecommerce.ecommercebe.pojo.response.CommonResponse;
+import com.ecommerce.ecommercebe.pojo.response.ResultResponse;
 import com.ecommerce.ecommercebe.service.ProductFeatureService;
 import com.ecommerce.ecommercebe.utility.utilClasses.ParseToken;
 import com.ecommerce.ecommercebe.utility.utilClasses.PermissionDenied;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.xml.bind.DatatypeConverter;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -115,5 +117,15 @@ public class ProductFeatureServiceImpl implements ProductFeatureService {
         response.setCode(200);
         response.setMessage("Product deleted successfully");
         return response;
+    }
+
+    @Override
+    public ResultResponse sellerOwnProduct(String token) {
+        UserEntity user = parseToken.getUser(token);
+
+        permissionDenied.ForBuyer(user.getUserType());
+        List<ProductEntity> productList = productRepository.findBySellerId(user.getId());
+
+        return new ResultResponse(0, productList);
     }
 }
