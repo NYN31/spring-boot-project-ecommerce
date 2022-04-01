@@ -78,6 +78,7 @@ public class JWTTokenServiceImpl implements JWTTokenService {
                 .claim("walletId", walletNumber)
                 .claim("emailAddress", email)
                 .signWith(signatureAlgorithm, signingKey).compact();
+        log.info("Token size: {}", token.length());
 
         TokenEntity tokenEntity = TokenEntity.builder()
                 .tokenId(id)

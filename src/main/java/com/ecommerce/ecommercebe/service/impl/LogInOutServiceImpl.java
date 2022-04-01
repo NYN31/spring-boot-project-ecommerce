@@ -43,8 +43,7 @@ public class LogInOutServiceImpl implements LogInOutService {
 
     public LoginResponse loginUser(LoginRequest request){
         log.info("Enter into login user function");
-        String password = passwordConfig.encodePassword().encode(request.getPassword());
-        validateUserByEmailAndPassword(request.getEmail(), password);
+        validateUserByEmailAndPassword(request.getEmail(), request.getPassword());
 
         JwtTokenRequest jwtTokenRequest
                 = JwtTokenRequest.builder()
@@ -63,7 +62,6 @@ public class LogInOutServiceImpl implements LogInOutService {
 
     public LogoutResponse logoutUser(String token){
         log.info("Enter into logout User function");
-        jwtTokenService.verifyToken(token);
 
         Claims claims = Jwts.parser()
                 .setSigningKey(DatatypeConverter.parseBase64Binary(SECRETE_KEY))
@@ -82,6 +80,7 @@ public class LogInOutServiceImpl implements LogInOutService {
     }
 
     private void validateUserByEmailAndPassword(String email, String password){
+        log.info("Enter into validationUserFunction: {}", email);
         UserEntity userEntity = userRepository.findByEmail(email);
         if(userEntity == null){
             throw new NotFoundException("Incorrect email address");
@@ -90,6 +89,6 @@ public class LogInOutServiceImpl implements LogInOutService {
         if(!userEntity.getPassword().equals(password)){
             throw new NotFoundException("Incorrect password");
         }
-        log.info("Enter into validation user function: {}, {}", userEntity.getPassword(), password);
+        log.info("User validated by email and password");
     }
 }

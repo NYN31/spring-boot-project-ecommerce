@@ -38,7 +38,7 @@ public class RegisterUserServiceImpl implements RegisterUserService {
         UserEntity user = UserEntity.builder()
                 .name(request.getName())
                 .email(request.getEmail())
-                .password(passwordConfig.encodePassword().encode(request.getPassword()))
+                .password(request.getPassword())
                 .walletId(request.getWalletId())
                 .userType(userType)
                 .address(request.getAddress())

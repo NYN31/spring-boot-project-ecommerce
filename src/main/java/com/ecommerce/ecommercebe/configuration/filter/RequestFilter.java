@@ -1,8 +1,6 @@
 package com.ecommerce.ecommercebe.configuration.filter;
 
-import com.ecommerce.ecommercebe.exception.InvalidTokenException;
 import com.ecommerce.ecommercebe.pojo.response.CommonResponse;
-import com.ecommerce.ecommercebe.pojo.response.JwtTokenResponse;
 import com.ecommerce.ecommercebe.service.JWTTokenService;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +36,9 @@ public class RequestFilter implements Filter {
 
         String token = request.getHeader("token");
         try{
+            log.info("Enter into Filter");
             jwtTokenService.verifyToken(token);
+            log.info("Enter into the chain");
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (Exception e){
             CommonResponse commonResponse = new CommonResponse();

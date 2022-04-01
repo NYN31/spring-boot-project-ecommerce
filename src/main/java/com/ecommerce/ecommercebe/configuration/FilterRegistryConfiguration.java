@@ -17,6 +17,7 @@ public class FilterRegistryConfiguration {
         requestFilter.setFilter(requestFilterNew);
         requestFilter.addUrlPatterns("/products/*");
         requestFilter.addUrlPatterns("/features/*");
+        requestFilter.addUrlPatterns("/commons/*");
         requestFilter.addUrlPatterns("/logout");
         return requestFilter;
     }

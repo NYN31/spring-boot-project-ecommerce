@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @Slf4j
 @RestController
 public class LogInOutController {
@@ -23,7 +25,7 @@ public class LogInOutController {
             consumes= MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public LoginResponse loginUser(@RequestBody LoginRequest request){
+    public LoginResponse loginUser(@Valid @RequestBody LoginRequest request){
         log.info("Request body: {}", request);
         return logInOutService.loginUser(request);
     }
